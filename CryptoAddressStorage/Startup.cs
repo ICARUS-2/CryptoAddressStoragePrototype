@@ -36,8 +36,11 @@ namespace CryptoAddressStorage
                 opt.UseSqlServer(
                     Configuration.GetConnectionString("AppConnection")));
 
-            services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = false)
-                .AddEntityFrameworkStores<AuthContext>();
+            services.AddIdentity<IdentityUser, IdentityRole>((options => options.SignIn.RequireConfirmedAccount = false))
+                .AddEntityFrameworkStores<AuthContext>()
+                .AddDefaultUI()
+                .AddDefaultTokenProviders();
+
             services.AddControllersWithViews();
         }
 

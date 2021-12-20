@@ -80,12 +80,14 @@ namespace CryptoAddressStorage.Areas.Identity.Pages.Account
 
                 var emailCheckUser = await _userManager.FindByEmailAsync(user.Email);
 
-                var result = await _userManager.CreateAsync(user, Input.Password);
-
                 if (emailCheckUser != null)
                 {
-                    //return Page();
+                    ModelState.AddModelError(string.Empty,"That email is already registered!");
+                    return Page();
                 }
+
+                var result = await _userManager.CreateAsync(user, Input.Password);
+                await _userManager.AddToRoleAsync(user, UserRoles.BaseUser.ToString());
 
                 if (result.Succeeded)
                 {
