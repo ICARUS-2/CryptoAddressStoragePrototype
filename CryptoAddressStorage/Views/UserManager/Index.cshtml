@@ -7,6 +7,17 @@
 @using Microsoft.AspNetCore.Identity
 @inject UserManager<IdentityUser> userManager
 <h1>User Manager</h1>
+<br />
+<form method="post">
+    <input type="text" name="search-query" value="@ViewBag.SearchData" />
+    <button type="submit" class="btn btn-primary" asp-controller="UserManager" asp-action="Index">Search</button>
+</form>
+<br />
+@if (ViewBag.SearchData != null && ViewBag.SearchData != String.Empty)
+{
+    <p>Search results for "@ViewBag.SearchData"</p>
+}
+
 <table class="table table-striped">
     <p class="alert-success">@ViewBag.SuccessData</p>
     <p class="alert-danger">@ViewBag.FailureData</p>

@@ -21,9 +21,18 @@ namespace CryptoAddressStorage.Controllers
             _roleManager = roleManager;
             _userManager = userManager;
         }
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(IFormCollection form)
         {
+            string searchQuery = form["search-query"];
+
             var users = await _userManager.Users.ToListAsync();
+
+            if (searchQuery != null && searchQuery != string.Empty)
+            {
+                users = users.Where(u => u.Id.Contains(searchQuery) || u.Email.Contains(searchQuery) || u.UserName.Contains(searchQuery)).ToList();
+                ViewBag.SearchData = searchQuery;
+            }
+
             var userRolesViewModelList = new List<UserRolesViewModel>();
             foreach (IdentityUser user in users)
             {
