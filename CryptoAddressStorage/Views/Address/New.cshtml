@@ -1,0 +1,77 @@
+﻿<h1>New address</h1>
+
+<form method="post">
+    <label>Currency</label>
+    <select name="CoinType" asp-items="Html.GetEnumSelectList(typeof(CoinType))" class="dropdown coinDropdown"></select>
+
+    <br />
+    <br />
+
+    <label>Address Name</label>
+    <input name="Name" type="text" class="addressTitle" />
+
+    <br />
+    <br />  
+
+    <label>Public Key</label>
+    <input name="Address" type="text" class="publicKeyField" style="width:750px" />
+    <p class="formatData"></p>
+
+    <label>Access Level</label>
+    <select name="AccessLevel" asp-items="Html.GetEnumSelectList(typeof(AccessLevels))" class="dropdown coinDropdown"></select>
+
+    <br />
+    <br />
+
+    <button type="submit" class="btn btn-success submitBtn" disabled asp-controller="Address" asp-action="New">Create</button>
+</form>
+
+<script>
+    let publicKeyTextField;
+    let formatDataField;
+    let coinDropdown;
+    let submitBtn;
+    document.addEventListener('DOMContentLoaded', () =>
+    {
+        publicKeyTextField = document.getElementsByClassName("publicKeyField")[0];
+        formatDataField = document.getElementsByClassName("formatData")[0];
+        coinDropdown = document.getElementsByClassName("coinDropdown")[0];
+        submitBtn = document.getElementsByClassName("submitBtn")[0];
+
+        publicKeyTextField.addEventListener('input', handleInputChanged)
+        coinDropdown.addEventListener('change', handleInputChanged)
+    })
+
+    async function handleInputChanged() {
+        let fmt = await getFormat();
+        submitBtn.disabled = fmt.includes("Unknown");
+    }
+
+    async function getFormat() {
+        const data = { pkey: publicKeyTextField.value, type: coinDropdown.value }
+
+        let query = encodeQueryData(data);
+
+        let formatFromBackend = await fetch("./format/" + query);
+
+        let formatText = await formatFromBackend.text();
+
+        if (formatText.includes("Unknown")) {
+            formatDataField.style.color = "red";
+            formatDataField.innerText = "UNKNOWN FORMAT";
+        }
+        else {
+            formatDataField.style.color = "green";
+            formatDataField.innerText = "Valid Format: " + formatText;
+        }
+
+        return formatText;
+    }
+
+    function encodeQueryData(data) {
+        const ret = [];
+        for (let d in data)
+            ret.push(encodeURIComponent(d) + '=' + encodeURIComponent(data[d]));
+        return ret.join(',');
+    }
+</script>

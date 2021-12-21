@@ -1,4 +1,5 @@
 using CryptoAddressStorage.Data;
+using CryptoAddressStorage.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
@@ -40,6 +41,8 @@ namespace CryptoAddressStorage
                 .AddEntityFrameworkStores<AuthContext>()
                 .AddDefaultUI()
                 .AddDefaultTokenProviders();
+
+            services.AddScoped<ISiteRepository, MainSiteRepository>();
 
             services.AddControllersWithViews();
         }
