@@ -41,5 +41,11 @@ namespace CryptoAddressStorage.Services
         {
             _context.SaveChanges();
         }
+
+        public void RemoveAddress(CryptoAddress address)
+        {
+            _context.Addresses.Remove(address);
+            _context.SaveChanges();
+        }
     }
 }

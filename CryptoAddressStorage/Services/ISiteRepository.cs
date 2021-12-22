@@ -13,5 +13,6 @@ namespace CryptoAddressStorage.Services
         public IEnumerable<CryptoAddress> GetAddressesByUserId(string userId);
         public CryptoAddress GetAddressById(int aId);
         public void SaveChanges();
+        public void RemoveAddress(CryptoAddress address);
     }
 }

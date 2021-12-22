@@ -172,6 +172,31 @@ namespace CryptoAddressStorage.Controllers
             return Redirect("~/Home/Index");
         }
 
+        [HttpPost("Address/Delete/{id}")]
+        [Authorize]
+        public async Task<IActionResult> Delete(int id)
+        {
+            var user = await _userManager.GetUserAsync(User);
+            var address = _repo.GetAddressById(id);
+
+            if (address == null)
+            {
+                TempData["FailureData"] = "Cannot edit address: No address exists with ID" + id;
+                return Redirect("~/Home/Index");
+            }
+
+            if (user.Id != address.IdentityUserId)
+            {
+                TempData["FailureData"] = "Cannot delete address: Access Denied";
+                return Redirect("~/Home/Index");
+            }
+
+            _repo.RemoveAddress(address);
+            TempData["SuccessData"] = String.Format("Successfully deleted {0} address {1}", address.Coin, address.PublicKey);
+
+            return Redirect("~/Home/Index");
+        }
+
         [HttpGet("Address/Format/{query}")]
         public object Format(string query)
         {
