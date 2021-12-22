@@ -1,4 +1,5 @@
 using CryptoAddressStorage.Data;
+using CryptoAddressStorage.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
@@ -27,13 +28,22 @@ namespace CryptoAddressStorage
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddDbContext<ApplicationDbContext>(options =>
+            services.AddDbContext<AuthContext>(options =>
                 options.UseSqlServer(
-                    Configuration.GetConnectionString("DefaultConnection")));
+                    Configuration.GetConnectionString("AuthConnection")));
             services.AddDatabaseDeveloperPageExceptionFilter();
 
-            services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
-                .AddEntityFrameworkStores<ApplicationDbContext>();
+            services.AddDbContext<CryptoContext>(opt =>
+                opt.UseSqlServer(
+                    Configuration.GetConnectionString("AppConnection")));
+
+            services.AddIdentity<IdentityUser, IdentityRole>((options => options.SignIn.RequireConfirmedAccount = false))
+                .AddEntityFrameworkStores<AuthContext>()
+                .AddDefaultUI()
+                .AddDefaultTokenProviders();
+
+            services.AddScoped<ISiteRepository, MainSiteRepository>();
+
             services.AddControllersWithViews();
         }
 

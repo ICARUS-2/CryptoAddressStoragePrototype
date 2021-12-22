@@ -1,4 +1,6 @@
 ﻿using CryptoAddressStorage.Models;
+using CryptoAddressStorage.Services;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System;
@@ -11,15 +13,24 @@ namespace CryptoAddressStorage.Controllers
 {
     public class HomeController : Controller
     {
-        private readonly ILogger<HomeController> _logger;
-
-        public HomeController(ILogger<HomeController> logger)
+        private readonly UserManager<IdentityUser> _userManager;
+        private readonly SignInManager<IdentityUser> _signInManager;
+        private readonly ISiteRepository _repository;
+        public HomeController(UserManager<IdentityUser> um ,SignInManager<IdentityUser> sm, ISiteRepository repo)
         {
-            _logger = logger;
+            _userManager = um;
+            _signInManager = sm;
+            _repository = repo;
         }
 
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
+            if (_signInManager.IsSignedIn(User))
+            {
+                var user = await _userManager.GetUserAsync(User);
+                return View(_repository.GetAddressesByUserId(user.Id));
+            }
+
             return View();
         }
 

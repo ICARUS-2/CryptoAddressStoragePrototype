@@ -1,8 +1,52 @@
 ﻿@{
     ViewData["Title"] = "Home Page";
 }
+@using Microsoft.AspNetCore.Identity
+@using CryptoAddressStorage.Models.Entities
+@inject SignInManager<IdentityUser> SignInManager
+@model IEnumerable<CryptoAddress>
 
 <div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://docs.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+    <h1 class="display-4">crypto address storage</h1>
 </div>
+
+@if (SignInManager.IsSignedIn(User))
+{
+    <p class="alert-success">@Html.Raw(TempData["SuccessData"])</p>
+    <p class="alert-danger">@Html.Raw(TempData["FailureData"])</p>
+    <p class="alert-warning">@Html.Raw(TempData["WarningData"])</p>
+    <div class="header">
+        <h2>Your Addresses &nbsp;</h2>
+        <a class="btn btn-success" asp-controller="Address" asp-action="New">New Address</a>
+    </div>
+
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Address</th>
+                <th>Coin</th>
+                <th>Address Type</th>
+                <th>Access Level</th>
+                <th>Current Balance</th>
+                <th>Edit</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach(CryptoAddress addy in Model)
+            {
+                <tr>
+                    <td>@addy.Title</td>
+                    <td style="max-width:300px; word-wrap: break-word">@addy.PublicKey</td>
+                    <td>@addy.Coin</td>
+                    <td>@addy.Format</td>
+                    <td>@addy.AccessLevel</td>
+                    <td>@addy.Balance</td>
+                    <td>
+                        <a class="btn btn-primary" asp-controller="Address" asp-action="Edit" asp-route-id="@addy.Id">Edit</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
