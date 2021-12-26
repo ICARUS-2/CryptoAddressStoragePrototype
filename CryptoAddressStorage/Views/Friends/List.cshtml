@@ -1,0 +1,69 @@
+﻿@using CryptoAddressStorage.Models;
+@using Microsoft.AspNetCore.Identity;
+@using CryptoAddressStorage.Services;  
+@inject UserManager<IdentityUser> UserManager
+@inject ISiteRepository Repository
+@model FriendDataViewModel;
+
+@{
+    ViewData["Title"] = "FriendsList";
+}
+
+<div class="container">
+    <div class="leftSide">
+        <h2>Your Friends (@Model.FriendsList.Count())</h2>
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Username</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach(var friendObj in Model.FriendsList)
+                {
+                    <tr>
+                        @{ 
+                            string username = "";
+                            var currentIdentityUser = await UserManager.GetUserAsync(User);
+
+                            if (friendObj.Friend1 == currentIdentityUser.Id)
+                            {
+                                username = (await UserManager.FindByIdAsync(friendObj.Friend2)).UserName;
+                            }
+                            else
+                            {
+                                username = (await UserManager.FindByIdAsync(friendObj.Friend1)).UserName;
+                            }
+
+                            <td>@username</td>
+
+                            <td>
+                                <form>
+                                    <button type="submit" class="btn-danger">Remove friend</button>
+                                </form>
+                            </td>
+                        }
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+    <div class="rightSide"></div>
+</div>
+
+<style>
+    .container
+    {
+        display: flex;
+        flex-direction: row;
+        justify-content: center;
+        width: 100%;
+    }
+
+    .leftSide, .rightSide
+    {
+        width: 50%;
+    }
+</style>
+

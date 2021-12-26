@@ -33,7 +33,7 @@ namespace CryptoAddressStorage.Controllers
                 return Redirect("~/Home/Index");
             }
 
-            if (username == user.UserName)
+            if (username == currentIdentityUser.UserName)
             {
                 return Redirect("~/Identity/Account/Manage");
             }

@@ -2,40 +2,76 @@
 @using CryptoAddressStorage.Models.Entities;
 @using CryptoAddressStorage.Services;
 @using Microsoft.AspNetCore.Identity;
+@using System.Web; 
 
 @inject UserManager<IdentityUser> UserManager;
-@inject ISiteRepository Repository; 
-@model ProfileViewModel; 
+@inject ISiteRepository Repository;
+@model ProfileViewModel;
+
+<p class="alert-success">@TempData["SuccessData"]</p>
+<p class="alert-danger">@TempData["FailureData"]</p>
 
 <h1>@Model.IdentityUser.UserName's Profile</h1>
 
 <br />
 
-<div class="header">
-    <h2>Addresses &nbsp;</h2>
-</div>
-
 <div class="friend-status">
-    @{ 
+    @{
         var user = await UserManager.GetUserAsync(User);
 
         //Current user is friends with profile user
         if (Repository.CheckFriendship(user.Id, Model.IdentityUser.Id))
         {
-            <a class="btn btn-danger">Remove Friend</a>
+            <form method="post" action="~/Friends/Remove">
+                <input name="ToId" hidden value="@Model.IdentityUser.Id" />
+                <input name="Redirect" hidden value="@Context.Request.Path" />
+                <button class="btn btn-danger" type="submit">Remove Friend</button>
+            </form>
         }
         //Current user sent profile user pending friend request
         else if (Repository.CheckPendingFriendRequest(user.Id, Model.IdentityUser.Id))
         {
-            <a class="btn btn-warning">Cancel friend request</a>
+            <form method="post" action="~/Friends/Requests/Cancel">
+                <input name="ToId" hidden value="@Model.IdentityUser.Id" />
+                <input name="Redirect" hidden value="@Context.Request.Path" />
+                <button class="btn btn-warning" type="submit">Cancel friend request</button>
+            </form>
         }
         //Profile user sent current user pending friend request
         else if (Repository.CheckPendingFriendRequest(Model.IdentityUser.Id, user.Id))
-            {
+        {
+            <p>@Model.IdentityUser.UserName friend requested you</p>
 
-            }
+            <div style="display: flex">
+                <form method="post" action="~/Friends/Requests/Accept">
+                    <input name="FromId" hidden value="@Model.IdentityUser.Id" />
+                    <input name="Redirect" hidden value="@Context.Request.Path" />
+                    <button type="submit" class="btn btn-success" style="margin-right: 5px">Accept</button>
+                </form>
+                <form method="post" action="~/Friends/Requests/DontAccept">
+                    <input name="FromId" hidden value="@Model.IdentityUser.Id" />
+                    <input name="Redirect" hidden value="@Context.Request.Path" />
+                    <button type="submit" class="btn btn-danger">Don't accept</button>
+                </form>
+            </div>
+        }
+        else
+        {
+            <form method="post" action="~/Friends/Requests/Send">
+                <input name="ToId" hidden value="@Model.IdentityUser.Id" />
+                <input name="Redirect" hidden value="@Context.Request.Path" />
+                <button class="btn btn-success" style="color: white" type="submit">Send friend request</button>
+            </form>
+        }
     }
 
+</div>
+
+<br />
+<br />
+
+<div class="header">
+    <h2>Addresses &nbsp;</h2>
 </div>
 
 <table class="table table-striped">
@@ -52,32 +88,32 @@
     <tbody>
         @foreach (CryptoAddress addy in Model.Addresses)
         {
-        <tr>
-            <td>@addy.Title</td>
-            <td style="max-width:300px; word-wrap: break-word">@addy.PublicKey</td>
-            <td>@addy.Coin</td>
-            <td>@addy.Format</td>
-            @{
-                string accessStyling = "";
-                switch (addy.AccessLevel)
-                {
-                    case "Private":
-                        accessStyling = "danger";
-                        break;
+            <tr>
+                <td>@addy.Title</td>
+                <td style="max-width:300px; word-wrap: break-word">@addy.PublicKey</td>
+                <td>@addy.Coin</td>
+                <td>@addy.Format</td>
+                @{
+                    string accessStyling = "";
+                    switch (addy.AccessLevel)
+                    {
+                        case "Private":
+                            accessStyling = "danger";
+                            break;
 
-                    case "FriendsOnly":
-                        accessStyling = "warning";
-                        break;
+                        case "FriendsOnly":
+                            accessStyling = "warning";
+                            break;
 
-                    case "Public":
-                        accessStyling = "success";
-                        break;
+                        case "Public":
+                            accessStyling = "success";
+                            break;
+                    }
+
+                    <td class="text-@accessStyling">@addy.AccessLevel</td>
                 }
-
-                <td class="text-@accessStyling">@addy.AccessLevel</td>
-            }
-            <td>@addy.Balance</td>
-        </tr>
+                <td>@addy.Balance</td>
+            </tr>
         }
     </tbody>
 </table>

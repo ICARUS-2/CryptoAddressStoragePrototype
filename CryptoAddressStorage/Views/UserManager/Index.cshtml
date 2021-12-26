@@ -35,7 +35,7 @@
         {
             <tr>
                 <td>@user.UserId</td>
-                <td>@user.UserName</td>
+                <td><a href="~/User/@user.UserName">@user.UserName</a></td>
                 <td>@user.Email</td>
                 <td>@string.Join(" , ", user.Roles.ToList())</td>
                 <td>
