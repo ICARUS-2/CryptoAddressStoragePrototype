@@ -14,5 +14,7 @@ namespace CryptoAddressStorage.Services
         public CryptoAddress GetAddressById(int aId);
         public void SaveChanges();
         public void RemoveAddress(CryptoAddress address);
+        public bool CheckPendingFriendRequest(string from, string to);
+        public bool CheckFriendship(string user1, string user2);
     }
 }

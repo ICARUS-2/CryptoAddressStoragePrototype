@@ -47,5 +47,24 @@ namespace CryptoAddressStorage.Services
             _context.Addresses.Remove(address);
             _context.SaveChanges();
         }
+
+        public bool CheckFriendship(string user1, string user2)
+        {
+            List<Friendship> friendships = _context.Friendships
+                .Where(fr =>
+                (fr.Friend1 == user1 && fr.Friend2 == user2)
+                || (fr.Friend1 == user2 && fr.Friend2 == user1))
+                .ToList();
+
+            return friendships.Count != 0;
+        }
+
+        public bool CheckPendingFriendRequest(string from, string to)
+        {
+            List<FriendRequest> friendRequests = _context.FriendRequests.Where(fr =>
+            fr.From == from && fr.To == to).ToList();
+
+            return friendRequests.Count != 0;
+        }
     }
 }

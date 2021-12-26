@@ -1,0 +1,99 @@
+﻿@using CryptoAddressStorage.Models;
+@using CryptoAddressStorage.Services; 
+@using Microsoft.AspNetCore.Identity
+ 
+@model GlobalSearchViewModel;
+@inject UserManager<IdentityUser> UserManager
+@inject ISiteRepository Repository 
+<h1>Global Search</h1>
+
+<form method="post">
+    <input type="text" name="search-query" value="@ViewBag.SearchData" />
+    <button type="submit" class="btn btn-primary" asp-controller="Home" asp-action="GlobalSearch">Search</button>
+</form>
+@if (ViewBag.SearchData != null && ViewBag.SearchData != String.Empty)
+{
+    <p>Search results for "@ViewBag.SearchData"</p>
+}
+
+@if (Model.SearchAddresses.Count() > 0 || Model.SearchUsers.Count() > 0)
+{
+    <h2>Users (@Model.SearchUsers.Count())</h2>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Username</th>
+                <th>Friend</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var user in Model.SearchUsers)
+            {
+                <tr>
+                    <td><a href="../User/@user.UserName">@user.UserName</a></td>
+                    <td><a href="">Friend Request</a></td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+
+
+    <br />
+    <br />
+    <br />
+
+    <h2>Addresses (@Model.SearchAddresses.Count())</h2>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>User</th>
+                <th>Name</th>
+                <th>Address</th>
+                <th>Coin</th>
+                <th>Address Type</th>
+                <th>Access Level</th>
+                <th>Current Balance</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var addy in Model.SearchAddresses)
+            {
+            <tr>
+                <td>@((await UserManager.FindByIdAsync(addy.IdentityUserId)).UserName)</td>
+                <td>@addy.Title</td>
+                <td style="max-width:300px; word-wrap: break-word">@addy.PublicKey</td>
+                <td>@addy.Coin</td>
+                <td>@addy.Format</td>
+                @{
+                    string accessStyling = "";
+                    switch (addy.AccessLevel)
+                    {
+                        case "Private":
+                            accessStyling = "danger";
+                            break;
+
+                        case "FriendsOnly":
+                            accessStyling = "warning";
+                            break;
+
+                        case "Public":
+                            accessStyling = "success";
+                            break;
+                    }
+                   
+                    <td class="text-@accessStyling">@addy.AccessLevel</td>
+                    }
+                <td>@addy.Balance</td>
+            </tr>
+            }
+        </tbody>
+    </table>
+}
+else
+{
+    @if (ViewBag.SearchData != null && ViewBag.SearchData != String.Empty)
+    {
+        <h2>No search results found</h2>
+    }
+}
