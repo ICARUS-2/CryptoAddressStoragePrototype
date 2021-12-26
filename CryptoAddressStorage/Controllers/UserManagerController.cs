@@ -21,6 +21,8 @@ namespace CryptoAddressStorage.Controllers
             _roleManager = roleManager;
             _userManager = userManager;
         }
+
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Index(IFormCollection form)
         {
             string searchQuery = form["search-query"];
@@ -29,7 +31,7 @@ namespace CryptoAddressStorage.Controllers
 
             if (searchQuery != null && searchQuery != string.Empty)
             {
-                users = users.Where(u => u.Id.Contains(searchQuery) || u.Email.Contains(searchQuery) || u.UserName.Contains(searchQuery)).ToList();
+                users = users.Where(u => u.Id.ToLower().Contains(searchQuery.ToLower()) || u.Email.ToLower().Contains(searchQuery.ToLower()) || u.UserName.ToLower().Contains(searchQuery.ToLower())).ToList();
                 ViewBag.SearchData = searchQuery;
             }
 
@@ -51,11 +53,14 @@ namespace CryptoAddressStorage.Controllers
 
             return View("Index", userRolesViewModelList.Where(v => v.UserId != currentUser.Id));
         }
+
+        [Authorize(Roles = "Admin")]
         private async Task<List<string>> GetUserRoles(IdentityUser user)
         {
             return new List<string>(await _userManager.GetRolesAsync(user));
         }
 
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> ManageRoles(string userId)
         {
             ViewBag.userId = userId;
@@ -87,6 +92,7 @@ namespace CryptoAddressStorage.Controllers
             return View(model);
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpPost]
         public async Task<IActionResult> ManageRoles(List<ManageUserRolesViewModel> model, string userId)
         {
@@ -113,6 +119,7 @@ namespace CryptoAddressStorage.Controllers
             return RedirectToAction("Index");
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpPost]
         public async Task<IActionResult> Ban(IFormCollection form)
         {
@@ -139,7 +146,7 @@ namespace CryptoAddressStorage.Controllers
             return RedirectToAction("Index");
         }
 
-
+        [Authorize(Roles = "Admin")]
         [HttpPost]
         public async Task<IActionResult> Unban(IFormCollection form)
         {

@@ -1,0 +1,149 @@
+﻿@using CryptoAddressStorage.Models;
+@using Microsoft.AspNetCore.Identity;
+@using CryptoAddressStorage.Services;  
+@inject UserManager<IdentityUser> UserManager
+@inject ISiteRepository Repository
+@model FriendDataViewModel;
+
+@{
+    ViewData["Title"] = "FriendsList";
+}
+
+<div class="mainPage">
+    <div class="leftSide">
+        <h2>Your Friends (@Model.FriendsList.Count())</h2>
+        <table class="table table-striped table-bordered">
+            <thead>
+                <tr>
+                    <th>Username</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach(var friendObj in Model.FriendsList)
+                {
+                    <tr>
+                        @{ 
+                            string username = "";
+                            string friendId = "";
+                            var currentIdentityUser = await UserManager.GetUserAsync(User);
+
+                            if (friendObj.Friend1 == currentIdentityUser.Id)
+                            {
+                                username = (await UserManager.FindByIdAsync(friendObj.Friend2)).UserName;
+                                friendId = (await UserManager.FindByIdAsync(friendObj.Friend2)).Id;
+                            }
+                            else
+                            {
+                                username = (await UserManager.FindByIdAsync(friendObj.Friend1)).UserName;
+                                friendId = (await UserManager.FindByIdAsync(friendObj.Friend1)).Id;
+                            }
+
+                            <td><a href="~/User/@username">@username</a></td>
+
+                            <td>
+                                <form method="post" action="~/Friends/Remove">
+                                    <input name="ToId" hidden value="@friendId" />
+                                    <input name="Redirect" hidden value="@Context.Request.Path" />
+                                    <button class="btn btn-danger" type="submit">Remove Friend</button>
+                                </form>
+                            </td>
+                        }
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <div class="middle">
+        <h2>Sent Friend Requests (@Model.SentFriendRequests.Count())</h2>
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>Sent to</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach(var friendRequest in Model.SentFriendRequests)
+                {
+                    var toUser = (await UserManager.FindByIdAsync(friendRequest.To));
+                <tr>
+                    <td>@toUser.UserName</td>
+                    <td>
+                        <form method="post" action="~/Friends/Requests/Cancel">
+                            <input name="ToId" hidden value="@toUser.Id" />
+                            <input name="Redirect" hidden value="@Context.Request.Path" />
+                            <button class="btn btn-warning" type="submit">Cancel friend request</button>
+                        </form>
+                    </td>
+                </tr>
+                }
+                
+            </tbody>
+        </table>
+    </div>
+
+    <div class="rightSide">
+        <h2>Received Friend Requests (@Model.ReceivedFriendRequests.Count())</h2>
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>From</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var friendRequest in Model.ReceivedFriendRequests)
+                {
+                    var fromUser = (await UserManager.FindByIdAsync(friendRequest.From));
+                    <tr>
+                        <td>@fromUser.UserName</td>
+                        <td>
+                            <div style="display: flex">
+                                <form method="post" action="~/Friends/Requests/Accept">
+                                    <input name="FromId" hidden value="@fromUser.Id" />
+                                    <input name="Redirect" hidden value="@Context.Request.Path" />
+                                    <button type="submit" class="btn btn-success" style="margin-right: 5px">Accept</button>
+                                </form>
+                                <form method="post" action="~/Friends/Requests/DontAccept">
+                                    <input name="FromId" hidden value="@fromUser.Id" />
+                                    <input name="Redirect" hidden value="@Context.Request.Path" />
+                                    <button type="submit" class="btn btn-danger">Don't accept</button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                }
+
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<style>
+    .mainPage
+    {
+        display: flex;
+        flex-direction: row;
+        justify-content: center;
+        width: 100%;
+    }
+
+    .container
+    {
+        max-width: unset;
+    }
+
+    .leftSide, .middle, .rightSide
+    {
+        width: 32%;
+    }
+
+    .middle
+    {
+        margin-left: 5px;
+        margin-right: 5px;
+    }
+</style>
+

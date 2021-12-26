@@ -150,7 +150,7 @@ namespace CryptoAddressStorage.Controllers
 
             if (((AccessLevels)accessLevel).ToString() != address.AccessLevel)
             {
-                changelog.Append(String.Format("<br>Access Level: {0} -> {1}", ((AccessLevels)accessLevel).ToString(), address.AccessLevel));
+                changelog.Append(String.Format("<br>Access Level: {0} -> {1}", address.AccessLevel, ((AccessLevels)accessLevel).ToString()));
             }
 
             address.Coin = ((CoinType)currency).ToString();

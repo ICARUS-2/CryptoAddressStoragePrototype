@@ -1,10 +1,14 @@
 ﻿@using Microsoft.AspNetCore.Identity
+@using CryptoAddressStorage.Services
 @inject SignInManager<IdentityUser> SignInManager
 @inject UserManager<IdentityUser> UserManager
+@inject ISiteRepository Repository
 
 <ul class="navbar-nav">
     @if (SignInManager.IsSignedIn(User))
     {
+        var currentIdentityUser = await UserManager.GetUserAsync(User);
+
         @if (User.IsInRole("Admin"))
         {
             <li class="nav-item">
@@ -13,8 +17,26 @@
         }
 
         <li class="nav-item">
-            <a class="nav-link text-dark" asp-area="Identity" asp-page="/Account/Manage/Index" title="Manage">Hello @User.Identity.Name!</a>
+            <a class="nav-link text-dark" asp-controller="Home" asp-action="GlobalSearch">Search</a>
         </li>
+
+        <li class="nav-item">
+            <a class="nav-link text-dark" asp-area="Identity" asp-page="/Account/Manage/Index" title="Manage">@User.Identity.Name</a>
+        </li>
+
+        <li class="nav-item">
+            @{
+                //Appears as the number of friend requests next to the navbar tab
+                string notif = "";
+                var pendingFriendReqCount = Repository.GetUserReceivedFriendRequests(currentIdentityUser.Id).Count();
+
+                if (pendingFriendReqCount > 0)
+                    notif += String.Format(" ({0})", pendingFriendReqCount);
+
+                <a class="nav-link text-dark" href="~/Friends/List">Friends<p class="text-danger d-inline">@notif</p></a>
+            }
+        </li>
+
         <li class="nav-item">
             <form class="form-inline" asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })">
                 <button type="submit" class="nav-link btn btn-link text-dark">Logout</button>
@@ -31,3 +53,11 @@
         </li>
     }
 </ul>
+
+<style>
+    .nav-item
+    {
+        margin-left: 5px;
+        margin-right: 5px;
+    }
+</style>
