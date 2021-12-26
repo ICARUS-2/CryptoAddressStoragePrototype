@@ -13,10 +13,13 @@
         }
 
         <li class="nav-item">
-            <a class="btn btn-primary" asp-controller="Home" asp-action="GlobalSearch">Search</a>
+            <a class="nav-link text-dark" asp-controller="Home" asp-action="GlobalSearch">Search</a>
         </li>
         <li class="nav-item">
-            <a class="nav-link text-dark" asp-area="Identity" asp-page="/Account/Manage/Index" title="Manage">Hello @User.Identity.Name!</a>
+            <a class="nav-link text-dark" asp-area="Identity" asp-page="/Account/Manage/Index" title="Manage">@User.Identity.Name</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link text-dark" href="~/Friends/List">Friends</a>
         </li>
         <li class="nav-item">
             <form class="form-inline" asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })">
@@ -34,3 +37,11 @@
         </li>
     }
 </ul>
+
+<style>
+    .nav-item
+    {
+        margin-left: 5px;
+        margin-right: 5px;
+    }
+</style>

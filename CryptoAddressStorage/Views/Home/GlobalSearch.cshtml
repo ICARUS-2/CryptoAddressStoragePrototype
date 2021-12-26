@@ -23,21 +23,17 @@
         <thead>
             <tr>
                 <th>Username</th>
-                <th>Friend</th>
             </tr>
         </thead>
         <tbody>
             @foreach (var user in Model.SearchUsers)
             {
                 <tr>
-                    <td><a href="~/User/@user.UserName">@user.UserName</a></td>
-                    <td><a href="">Friend Request</a></td>
+                    <td><a href="/User/@user.UserName">@user.UserName</a></td>
                 </tr>
             }
         </tbody>
     </table>
-
-
 
     <br />
     <br />

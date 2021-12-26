@@ -35,17 +35,35 @@
         <tbody>
             @foreach(CryptoAddress addy in Model)
             {
-                <tr>
-                    <td>@addy.Title</td>
-                    <td style="max-width:300px; word-wrap: break-word">@addy.PublicKey</td>
-                    <td>@addy.Coin</td>
-                    <td>@addy.Format</td>
-                    <td>@addy.AccessLevel</td>
-                    <td>@addy.Balance</td>
-                    <td>
-                        <a class="btn btn-primary" asp-controller="Address" asp-action="Edit" asp-route-id="@addy.Id">Edit</a>
-                    </td>
-                </tr>
+            <tr>
+                <td>@addy.Title</td>
+                <td style="max-width:300px; word-wrap: break-word">@addy.PublicKey</td>
+                <td>@addy.Coin</td>
+                <td>@addy.Format</td>
+                @{
+                    string accessStyling = "";
+                    switch (addy.AccessLevel)
+                    {
+                        case "Private":
+                            accessStyling = "danger";
+                            break;
+
+                        case "FriendsOnly":
+                            accessStyling = "warning";
+                            break;
+
+                        case "Public":
+                            accessStyling = "success";
+                            break;
+                    }
+
+                    <td class="alert-@accessStyling">@addy.AccessLevel</td>
+                }
+                <td>@addy.Balance</td>
+                <td>
+                    <a class="btn btn-primary" asp-controller="Address" asp-action="Edit" asp-route-id="@addy.Id">Edit</a>
+                </td>
+            </tr>
             }
         </tbody>
     </table>
