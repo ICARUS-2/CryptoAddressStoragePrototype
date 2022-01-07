@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
+using System.Net.Http;
 using System.Threading.Tasks;
 
 namespace CryptoAddressStorage.Models.Entities
@@ -18,7 +19,39 @@ namespace CryptoAddressStorage.Models.Entities
         public string Title { get; set; }
 
         [NotMapped]
-        public string Balance { get; set; }
+        public string Balance
+        {
+            get
+            {
+                const string UNAVAILABLE = "Unavailable";
+                switch (Coin)
+                {
+                    case "Monero":
+                        return UNAVAILABLE;
+
+                    case "Bitcoin":
+                        const string URL = "https://blockchain.info/q/addressbalance/";
+                        HttpClient client = new HttpClient();
+                        Uri uri = new Uri(URL + PublicKey);
+
+                        HttpResponseMessage res = client.GetAsync(uri).GetAwaiter().GetResult();
+                        string body = res.Content.ReadAsStringAsync().GetAwaiter().GetResult();
+
+                        bool isValid = int.TryParse(body, out int satoshiBalance);
+
+                        if (!isValid)
+                        {
+                            return UNAVAILABLE;
+                        }
+
+                        double btcBalance = (double) satoshiBalance / CryptoAddressHelper.HelperBitcoinProperties.DIVISOR;
+
+                        return String.Format("{0} BTC", btcBalance);
+                }
+
+                return "N/A";
+            }
+        }
         
         [NotMapped]
         public string Format
@@ -57,6 +90,7 @@ namespace CryptoAddressStorage.Models.Entities
             public const string SEGWIT_START = "3";
             public const string SEGWIT_NATIVE_START = "bc1q";
             public const string TAPROOT_START = "bc1p";
+            public const int DIVISOR = 100000000;
         }
 
         public static class HelperMoneroProperties
