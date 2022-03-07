@@ -1,8 +1,10 @@
-﻿using CryptoAddressStorage.Models;
+﻿using CryptoAddressStorage.Helpers;
+using CryptoAddressStorage.Models;
 using CryptoAddressStorage.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Filters;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,14 +16,15 @@ namespace CryptoAddressStorage.Controllers
     {
         public UserManager<IdentityUser> _userManager;
         public ISiteRepository _repository;
-        public UserController(UserManager<IdentityUser> um, ISiteRepository repo)
+
+        public UserController(UserManager<IdentityUser> userManager, ISiteRepository repo)
         {
-            _userManager = um;
+            _userManager = userManager;
             _repository = repo;
         }
 
         [Authorize]
-        [HttpGet("User/{username}")]
+        [HttpGet("{language}/User/{username}")]
         public async Task<IActionResult> Profile(string username)
         {
             var user = await _userManager.FindByNameAsync(username);
@@ -29,13 +32,13 @@ namespace CryptoAddressStorage.Controllers
 
             if (user == null)
             {
-                TempData["FailureData"] = String.Format("User with username {0} doesn't exist!", username);
-                return Redirect("~/Home/Index");
+                TempData[TempDataHelper.FAILURE] = String.Format("User with username {0} doesn't exist!", username);
+                return Redirect(UrlHelper.Generate(_repository.GetSessionLanguage(), "Home", "Index"));
             }
 
-            if (username == currentIdentityUser.UserName)
+            if (username.ToLower() == currentIdentityUser.UserName.ToLower())
             {
-                return Redirect("~/Identity/Account/Manage");
+                return Redirect(UrlHelper.Generate(_repository.GetSessionLanguage(), "Accounts", "Manage"));
             }
 
             var addresses = _repository.GetAddressesByUserId(user.Id).Where(a =>

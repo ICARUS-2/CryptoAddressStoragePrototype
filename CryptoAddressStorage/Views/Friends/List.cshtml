@@ -1,6 +1,7 @@
 ﻿@using CryptoAddressStorage.Models;
 @using Microsoft.AspNetCore.Identity;
 @using CryptoAddressStorage.Services;  
+@using CryptoAddressStorage.Helpers;
 @inject UserManager<IdentityUser> UserManager
 @inject ISiteRepository Repository
 @model FriendDataViewModel;
@@ -39,10 +40,10 @@
                                 friendId = (await UserManager.FindByIdAsync(friendObj.Friend1)).Id;
                             }
 
-                            <td><a href="~/User/@username">@username</a></td>
+                            <td><a href="@UrlHelper.Generate(Repository.GetSessionLanguage(), "User", username)">@username</a></td>
 
                             <td>
-                                <form method="post" action="~/Friends/Remove">
+                                <form method="post" action="@UrlHelper.Generate(Repository.GetSessionLanguage(), "Friends", "Remove")">
                                     <input name="ToId" hidden value="@friendId" />
                                     <input name="Redirect" hidden value="@Context.Request.Path" />
                                     <button class="btn btn-danger" type="submit">Remove Friend</button>
@@ -71,7 +72,7 @@
                 <tr>
                     <td>@toUser.UserName</td>
                     <td>
-                        <form method="post" action="~/Friends/Requests/Cancel">
+                        <form method="post" action="@UrlHelper.Generate(Repository.GetSessionLanguage(), "Friends", "Requests", "Cancel")">
                             <input name="ToId" hidden value="@toUser.Id" />
                             <input name="Redirect" hidden value="@Context.Request.Path" />
                             <button class="btn btn-warning" type="submit">Cancel friend request</button>
@@ -101,12 +102,12 @@
                         <td>@fromUser.UserName</td>
                         <td>
                             <div style="display: flex">
-                                <form method="post" action="~/Friends/Requests/Accept">
+                                <form method="post" action="@UrlHelper.Generate(Repository.GetSessionLanguage(), "Friends", "Requests", "Accept")">
                                     <input name="FromId" hidden value="@fromUser.Id" />
                                     <input name="Redirect" hidden value="@Context.Request.Path" />
                                     <button type="submit" class="btn btn-success" style="margin-right: 5px">Accept</button>
                                 </form>
-                                <form method="post" action="~/Friends/Requests/DontAccept">
+                                <form method="post" action="@UrlHelper.Generate(Repository.GetSessionLanguage(), "Friends", "Requests", "DontAccept")">
                                     <input name="FromId" hidden value="@fromUser.Id" />
                                     <input name="Redirect" hidden value="@Context.Request.Path" />
                                     <button type="submit" class="btn btn-danger">Don't accept</button>

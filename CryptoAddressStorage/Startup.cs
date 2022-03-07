@@ -12,6 +12,7 @@ using Microsoft.Extensions.Hosting;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Threading.Tasks;
 
 namespace CryptoAddressStorage
@@ -33,7 +34,7 @@ namespace CryptoAddressStorage
                     Configuration.GetConnectionString("AuthConnection")));
             services.AddDatabaseDeveloperPageExceptionFilter();
 
-            services.AddDbContext<CryptoContext>(opt =>
+            services.AddDbContext<SiteContext>(opt =>
                 opt.UseSqlServer(
                     Configuration.GetConnectionString("AppConnection")));
 
@@ -44,7 +45,12 @@ namespace CryptoAddressStorage
 
             services.AddScoped<ISiteRepository, MainSiteRepository>();
 
-            services.AddControllersWithViews();
+            services.ConfigureApplicationCookie(options => options.LoginPath = "/En/Accounts/Login");
+
+            services.AddControllersWithViews(opt =>
+            {
+                opt.Filters.Add(new GlobalAction());
+            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -57,7 +63,7 @@ namespace CryptoAddressStorage
             }
             else
             {
-                app.UseExceptionHandler("/Home/Error");
+                app.UseExceptionHandler("/En/Home/Error");
                 // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
             }
@@ -73,7 +79,7 @@ namespace CryptoAddressStorage
             {
                 endpoints.MapControllerRoute(
                     name: "default",
-                    pattern: "{controller=Home}/{action=Index}/{id?}");
+                    pattern: "{language=En}/{controller=Home}/{action=Index}/{id?}");
                 endpoints.MapRazorPages();
             });
         }

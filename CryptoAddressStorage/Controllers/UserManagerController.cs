@@ -1,8 +1,10 @@
-﻿using CryptoAddressStorage.Models;
+﻿using CryptoAddressStorage.Helpers;
+using CryptoAddressStorage.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -16,6 +18,7 @@ namespace CryptoAddressStorage.Controllers
     {
         private readonly UserManager<IdentityUser> _userManager;
         private readonly RoleManager<IdentityRole> _roleManager;
+
         public UserManagerController(UserManager<IdentityUser> userManager, RoleManager<IdentityRole> roleManager)
         {
             _roleManager = roleManager;
@@ -48,8 +51,8 @@ namespace CryptoAddressStorage.Controllers
 
             var currentUser = await _userManager.GetUserAsync(User);
 
-            ViewBag.SuccessData = TempData["SuccessData"];
-            ViewBag.FailureData = TempData["FailureData"];
+            ViewBag.SuccessData = TempData[TempDataHelper.SUCCESS];
+            ViewBag.FailureData = TempData[TempDataHelper.FAILURE];
 
             return View("Index", userRolesViewModelList.Where(v => v.UserId != currentUser.Id));
         }
@@ -115,7 +118,7 @@ namespace CryptoAddressStorage.Controllers
                 return View(model);
             }
 
-            TempData["SuccessData"] = String.Format("Successfully updated roles for user {0}/{1}/{2}:  {3} --> {4}", user.Id, user.Email, user.UserName, string.Join(", ", roles.ToList()), string.Join(", ", model.Where(x => x.Selected).Select(y => y.RoleName)));
+            TempData[TempDataHelper.SUCCESS] = String.Format("Successfully updated roles for user {0}/{1}/{2}:  {3} --> {4}", user.Id, user.Email, user.UserName, string.Join(", ", roles.ToList()), string.Join(", ", model.Where(x => x.Selected).Select(y => y.RoleName)));
             return RedirectToAction("Index");
         }
 
@@ -127,7 +130,7 @@ namespace CryptoAddressStorage.Controllers
 
             if (user.LockoutEnd != null)
             {
-                TempData["FailureData"] = String.Format("Ban failed for user {0}/{1}/{2} : User is already banned", user.Id, user.Email, user.UserName);
+                TempData[TempDataHelper.FAILURE] = String.Format("Ban failed for user {0}/{1}/{2} : User is already banned", user.Id, user.Email, user.UserName);
             }
             else
             {
@@ -135,11 +138,11 @@ namespace CryptoAddressStorage.Controllers
 
                 if (result.Succeeded)
                 {
-                    TempData["SuccessData"] = String.Format("Successfully banned user {0}/{1}/{2}", user.Id, user.Email, user.UserName);   
+                    TempData[TempDataHelper.SUCCESS] = String.Format("Successfully banned user {0}/{1}/{2}", user.Id, user.Email, user.UserName);   
                 }
                 else
                 {
-                    TempData["FailureData"] = String.Format("Ban failed for user {0}/{1}/{2} because an error occurred", user.Id, user.Email, user.UserName);
+                    TempData[TempDataHelper.FAILURE] = String.Format("Ban failed for user {0}/{1}/{2} because an error occurred", user.Id, user.Email, user.UserName);
                 }
             }
                
@@ -154,7 +157,7 @@ namespace CryptoAddressStorage.Controllers
 
             if (user.LockoutEnd == null)
             {
-                TempData["FailureData"] = String.Format("Unban failed for user {0}/{1}/{2} : User was not already banned.", user.Id, user.Email, user.UserName);
+                TempData[TempDataHelper.FAILURE] = String.Format("Unban failed for user {0}/{1}/{2} : User was not already banned.", user.Id, user.Email, user.UserName);
             }
             else
             {
@@ -162,11 +165,11 @@ namespace CryptoAddressStorage.Controllers
 
                 if (result.Succeeded)
                 {
-                    TempData["SuccessData"] = String.Format("Successfully unbanned user {0}/{1}/{2}", user.Id, user.Email, user.UserName);
+                    TempData[TempDataHelper.SUCCESS] = String.Format("Successfully unbanned user {0}/{1}/{2}", user.Id, user.Email, user.UserName);
                 }
                 else
                 {
-                    TempData["FailureData"] = String.Format("Unban failed for user {0}/{1}/{2} because an error occurred", user.Id, user.Email, user.UserName);
+                    TempData[TempDataHelper.FAILURE] = String.Format("Unban failed for user {0}/{1}/{2} because an error occurred", user.Id, user.Email, user.UserName);
                 }
             }
 

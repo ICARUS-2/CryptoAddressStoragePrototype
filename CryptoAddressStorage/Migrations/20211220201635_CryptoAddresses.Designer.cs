@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace CryptoAddressStorage.Migrations
 {
-    [DbContext(typeof(CryptoContext))]
+    [DbContext(typeof(SiteContext))]
     [Migration("20211220201635_CryptoAddresses")]
     partial class CryptoAddresses
     {

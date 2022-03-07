@@ -23,10 +23,12 @@ namespace CryptoAddressStorage
                 var services = scope.ServiceProvider;
                 try
                 {
+                    var repo = services.GetService<ISiteRepository>();
                     var userManager = services.GetRequiredService<UserManager<IdentityUser>>();
                     var roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();
                     await AuthSeeder.SeedRolesAsync(userManager, roleManager);
                     await AuthSeeder.SeedUsersAsync(userManager, roleManager);
+                    GlobalizationSeeder.RunSeeding(repo);
                 }
                 catch(Exception ex)
                 {

@@ -1,9 +1,11 @@
-﻿using CryptoAddressStorage.Models.Entities;
+﻿using CryptoAddressStorage.Helpers;
+using CryptoAddressStorage.Models.Entities;
 using CryptoAddressStorage.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Filters;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -18,20 +20,21 @@ namespace CryptoAddressStorage.Controllers
     {
         UserManager<IdentityUser> _userManager;
         ISiteRepository _repo;
+
         public AddressController(UserManager<IdentityUser> userManager, ISiteRepository repo)
         {
             _userManager = userManager;
             _repo = repo;
         }
 
-        [HttpGet("/Address/New")]
+        [HttpGet("{language}/Address/New")]
         [Authorize]
         public IActionResult New()
         {
             return View();
         }
 
-        [HttpPost("/Address/New")]
+        [HttpPost("{language}/Address/New")]
         [Authorize]
         public async Task <IActionResult> New(IFormCollection form)
         {
@@ -45,8 +48,8 @@ namespace CryptoAddressStorage.Controllers
             IEnumerable<CryptoAddress> addressByUserIdAndKey = _repo.GetAddressesByUserId(user.Id).Where(a => a.PublicKey == pubKey).Where(a => a.Coin == ((CoinType)coinType).ToString());
             if (addressByUserIdAndKey.Count() > 0)
             {
-                TempData["FailureData"] = String.Format("{0} address {1} already exists in your profile.", ((CoinType)coinType).ToString(), pubKey);
-                return Redirect("/Home/Index");
+                TempData[TempDataHelper.FAILURE] = String.Format("{0} address {1} already exists in your profile.", ((CoinType)coinType).ToString(), pubKey);
+                return Redirect(UrlHelper.Generate(_repo.GetSessionLanguage(), "Home", "Index"));
             }
 
             CryptoAddress newAddress = new CryptoAddress()
@@ -60,19 +63,19 @@ namespace CryptoAddressStorage.Controllers
 
             if (newAddress.Format.Contains("Unknown"))
             {
-                TempData["FailureData"] = "Address format invalid. No address has been created.";
+                TempData[TempDataHelper.FAILURE] = "Address format invalid. No address has been created.";
             }
             else
             {
-                TempData["SuccessData"] = String.Format("{0} {1} address {2} added successfully", newAddress.Format, newAddress.Coin, newAddress.PublicKey);
+                TempData[TempDataHelper.SUCCESS] = String.Format("{0} {1} address {2} added successfully", newAddress.Format, newAddress.Coin, newAddress.PublicKey);
 
                 _repo.InsertNewAddress(newAddress);
             }
 
-            return Redirect("/Home/Index");
+            return Redirect(UrlHelper.Generate(_repo.GetSessionLanguage(), "Home", "Index"));
         }
 
-        [HttpGet("/Address/Edit/{id}")]
+        [HttpGet("{language}/Address/Edit/{id}")]
         [Authorize]
         public async Task<IActionResult> Edit(int id)
         {
@@ -80,16 +83,16 @@ namespace CryptoAddressStorage.Controllers
 
             if (address == null)
             {
-                TempData["FailureData"] = "Cannot edit address: No address exists with ID" + id;
-                return Redirect("~/Home/Index");
+                TempData[TempDataHelper.FAILURE] = "Cannot edit address: No address exists with ID" + id;
+                return Redirect(UrlHelper.Generate(_repo.GetSessionLanguage(), "Home", "Index"));
             }    
 
             var user = await _userManager.GetUserAsync(User);
 
             if (user.Id != address.IdentityUserId)
             {
-                TempData["FailureData"] = "Cannot edit address: Access Denied";
-                return Redirect("~/Home/Index");
+                TempData[TempDataHelper.FAILURE] = "Cannot edit address: Access Denied";
+                return Redirect(UrlHelper.Generate(_repo.GetSessionLanguage(), "Home", "Index"));
             }
 
             ViewBag.SelectedCoin = (int)((CoinType)Enum.Parse(typeof(CoinType), address.Coin));
@@ -100,7 +103,7 @@ namespace CryptoAddressStorage.Controllers
             return View(address);
         }
 
-        [HttpPost("Address/Edit/{id}")]
+        [HttpPost("{language}/Address/Edit/{id}")]
         [Authorize]
         public async Task<IActionResult> Edit(int id, IFormCollection form)
         {
@@ -113,22 +116,22 @@ namespace CryptoAddressStorage.Controllers
 
             if (address == null)
             {
-                TempData["FailureData"] = "Cannot edit address: No address exists with ID" + id;
-                return Redirect("~/Home/Index");
+                TempData[TempDataHelper.FAILURE] = "Cannot edit address: No address exists with ID" + id;
+                return Redirect(UrlHelper.Generate(_repo.GetSessionLanguage(), "Home", "Index"));
             }
 
             var user = await _userManager.GetUserAsync(User);
 
             if (user.Id != address.IdentityUserId)
             {
-                TempData["FailureData"] = "Cannot edit address: Access Denied";
-                return Redirect("~/Home/Index");
+                TempData[TempDataHelper.FAILURE] = "Cannot edit address: Access Denied";
+                return Redirect(UrlHelper.Generate(_repo.GetSessionLanguage(), "Home", "Index"));
             }
 
             if (CryptoAddress.GetFormat(publicKey, ((CoinType)currency).ToString()).Contains("Unknown"))
             {
-                TempData["FailureData"] = "Cannot edit address: Invalid Format";
-                return Redirect("~/Home/Index");
+                TempData[TempDataHelper.FAILURE] = "Cannot edit address: Invalid Format";
+                return Redirect(UrlHelper.Generate(_repo.GetSessionLanguage(), "Home", "Index"));
             }
 
             StringBuilder changelog = new StringBuilder();
@@ -160,44 +163,44 @@ namespace CryptoAddressStorage.Controllers
 
             if (changelog.ToString().Length == 0)
             {
-                TempData["WarningData"] = "Edit succeeded, but no changes were present.";
+                TempData[TempDataHelper.WARNING] = "Edit succeeded, but no changes were present.";
             }
             else
             {
-                TempData["SuccessData"] = "Address modification succeeded with the following changes:" + changelog.ToString();
+                TempData[TempDataHelper.SUCCESS] = "Address modification succeeded with the following changes:" + changelog.ToString();
             }
             
             _repo.SaveChanges();
-            
-            return Redirect("~/Home/Index");
+
+            return Redirect(UrlHelper.Generate(_repo.GetSessionLanguage(), "Home", "Index"));
         }
 
-        [HttpPost("Address/Delete/{id}")]
+        [HttpPost("{language}/Address/Delete/{id}")]
         [Authorize]
-        public async Task<IActionResult> Delete(int id)
+        public async Task<IActionResult> Delete(int id, IFormCollection form)
         {
             var user = await _userManager.GetUserAsync(User);
             var address = _repo.GetAddressById(id);
 
             if (address == null)
             {
-                TempData["FailureData"] = "Cannot edit address: No address exists with ID" + id;
-                return Redirect("~/Home/Index");
+                TempData[TempDataHelper.FAILURE] = "Cannot edit address: No address exists with ID" + id;
+                return Redirect(UrlHelper.Generate(_repo.GetSessionLanguage(), "Home", "Index"));
             }
 
             if (user.Id != address.IdentityUserId)
             {
-                TempData["FailureData"] = "Cannot delete address: Access Denied";
-                return Redirect("~/Home/Index");
+                TempData[TempDataHelper.FAILURE] = "Cannot delete address: Access Denied";
+                return Redirect(UrlHelper.Generate(_repo.GetSessionLanguage(), "Home", "Index"));
             }
 
             _repo.RemoveAddress(address);
-            TempData["SuccessData"] = String.Format("Successfully deleted {0} address {1}", address.Coin, address.PublicKey);
+            TempData[TempDataHelper.SUCCESS] = String.Format("Successfully deleted {0} address {1}", address.Coin, address.PublicKey);
 
-            return Redirect("~/Home/Index");
+            return Redirect(UrlHelper.Generate(_repo.GetSessionLanguage(), "Home", "Index"));
         }
 
-        [HttpGet("Address/Format/{query}")]
+        [HttpGet("{language}/Address/Format/{query}")]
         public object Format(string query)
         {
             string[] parameters = query.Split(',');
