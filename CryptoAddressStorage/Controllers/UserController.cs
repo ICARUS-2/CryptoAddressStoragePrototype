@@ -33,12 +33,12 @@ namespace CryptoAddressStorage.Controllers
             if (user == null)
             {
                 TempData[TempDataHelper.FAILURE] = String.Format("User with username {0} doesn't exist!", username);
-                return Redirect("~/Home/Index");
+                return Redirect(UrlHelper.Generate(_repository.GetSessionLanguage(), "Home", "Index"));
             }
 
-            if (username == currentIdentityUser.UserName)
+            if (username.ToLower() == currentIdentityUser.UserName.ToLower())
             {
-                return Redirect("~/Identity/Account/Manage");
+                return Redirect(UrlHelper.Generate(_repository.GetSessionLanguage(), "Accounts", "Manage"));
             }
 
             var addresses = _repository.GetAddressesByUserId(user.Id).Where(a =>

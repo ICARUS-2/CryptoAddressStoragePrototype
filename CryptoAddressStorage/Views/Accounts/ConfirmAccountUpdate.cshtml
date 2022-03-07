@@ -43,5 +43,8 @@
                 <input type="submit" value="Confirm" class="btn btn-primary" />
             </div>
         </form>
+
+        <h3>Pending Changes:</h3>
+        <p class="alert-warning">@Html.Raw(TempData["changelog"])</p>
     </div>
 </div>

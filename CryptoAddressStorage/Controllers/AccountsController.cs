@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace CryptoAddressStorage.Controllers
@@ -154,15 +155,36 @@ namespace CryptoAddressStorage.Controllers
             }
             else
             {
-                return ConfirmAccountUpdate(model);
+                return await ConfirmAccountUpdate(model);
             }
             return View();
         }
 
         [Authorize]
         [HttpGet]
-        public IActionResult ConfirmAccountUpdate(ManageAccountModel model)
+        public async Task<IActionResult> ConfirmAccountUpdate(ManageAccountModel model)
         {
+            StringBuilder changelog = new StringBuilder();
+            IdentityUser user = await userManager.GetUserAsync(User);
+
+            if (model.Username != user.UserName)
+                changelog.AppendLine(String.Format("Username: {0} -> {1}", user.UserName, model.Username));
+
+            if (model.Email != user.Email)
+                changelog.AppendLine(String.Format("Email: {0} -> {1}", user.Email, model.Email));
+
+            if (!string.IsNullOrWhiteSpace(model.Password))
+                if (!await userManager.CheckPasswordAsync(user, model.Password))
+                    changelog.AppendLine("Password changed");
+
+            if (changelog.ToString() == String.Empty)
+            {
+                TempData[TempDataHelper.FAILURE] = "Account not updated because no changes were present";
+                return Redirect(UrlHelper.Generate(_repo.GetSessionLanguage(), "Home", "Index"));
+            }
+
+            TempData["changelog"] = changelog.ToString();
+
             return View("ConfirmAccountUpdate", new ConfirmManageAccountModel() { Username = model.Username, ConfirmPassword = model.ConfirmPassword, Password = model.Password, ConfirmUpdatePassword = "", Email = model.Email});
         }
 
@@ -173,7 +195,7 @@ namespace CryptoAddressStorage.Controllers
             if (!ModelState.IsValid)
             {
                 TempData[TempDataHelper.FAILURE] = "Model state invalid";
-                return Redirect(_repo.GetSessionLanguage() + "/Home/Index");
+                return Redirect(UrlHelper.Generate(_repo.GetSessionLanguage(), "Home", "Index"));
             }
 
             IdentityUser user = await userManager.GetUserAsync(User);
@@ -181,7 +203,7 @@ namespace CryptoAddressStorage.Controllers
             if (!await userManager.CheckPasswordAsync(user, model.ConfirmUpdatePassword))
             {
                 TempData[TempDataHelper.FAILURE] = "Password was incorrect. Account not updated.";
-                return Redirect(_repo.GetSessionLanguage() + "/Home/Index");
+                return Redirect(UrlHelper.Generate(_repo.GetSessionLanguage(), "Home", "Index"));
             }
 
             if (model.Username != user.UserName)
@@ -195,7 +217,8 @@ namespace CryptoAddressStorage.Controllers
                     await userManager.ChangePasswordAsync(user, model.ConfirmUpdatePassword, model.Password);
 
             TempData[TempDataHelper.SUCCESS] = "Account updated.";
-            return Redirect(_repo.GetSessionLanguage() + "/Home/Index");
+            await signInManager.RefreshSignInAsync(user);
+            return Redirect(UrlHelper.Generate(_repo.GetSessionLanguage(), "Home", "Index"));
         }
 
         public IActionResult Lockout()

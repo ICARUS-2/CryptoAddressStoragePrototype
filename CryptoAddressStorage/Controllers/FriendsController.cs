@@ -27,7 +27,7 @@ namespace CryptoAddressStorage.Controllers
         [Authorize]
         public IActionResult Index()
         {
-            return Redirect(_repository.GetSessionLanguage() + "/Friends/List");
+            return Redirect(UrlHelper.Generate(_repository.GetSessionLanguage(), "Friends", "List"));
         }
 
         [Authorize]
@@ -58,7 +58,7 @@ namespace CryptoAddressStorage.Controllers
             if (toUser == null)
             {
                 TempData[TempDataHelper.FAILURE] = String.Format("Cannot remove friend {0}: No user exists", toId);
-                return Redirect(_repository.GetSessionLanguage()+"/Home/Index");
+                return Redirect(UrlHelper.Generate(_repository.GetSessionLanguage(), "Home", "Index"));
             }
 
             if (_repository.RemoveFriend(currentUser.Id, toId))
@@ -86,7 +86,7 @@ namespace CryptoAddressStorage.Controllers
             if (toUser == null)
             {
                 TempData[TempDataHelper.FAILURE] = String.Format("Cannot send friend request to user ID {0}: No user exists", toId);
-                return Redirect(_repository.GetSessionLanguage()+"/Home/Index");
+                return Redirect(UrlHelper.Generate(_repository.GetSessionLanguage(), "Home", "Index"));
             }
 
             if (_repository.AddFriendRequest(currentUser.Id, toId))
@@ -114,7 +114,7 @@ namespace CryptoAddressStorage.Controllers
             if (fromUser == null)
             {
                 TempData[TempDataHelper.FAILURE] = String.Format("Cannot accept friend request from user ID {0}: No user exists", fromId);
-                return Redirect(_repository.GetSessionLanguage()+"/Home/Index");
+                return Redirect(UrlHelper.Generate(_repository.GetSessionLanguage(), "Home", "Index"));
             }
 
             if (_repository.ConfirmFriendRequest(fromId, currentUser.Id))
@@ -142,7 +142,7 @@ namespace CryptoAddressStorage.Controllers
             if (fromUser == null)
             {
                 TempData[TempDataHelper.FAILURE] = String.Format("Cannot deny friend request from user ID {0}: No user exists", fromId);
-                return Redirect(_repository.GetSessionLanguage()+"/Home/Index");    
+                return Redirect(UrlHelper.Generate(_repository.GetSessionLanguage(), "Home", "Index"));
             }
 
             if (_repository.RemoveFriendRequest(fromId, currentUser.Id))
@@ -170,7 +170,7 @@ namespace CryptoAddressStorage.Controllers
             if (toUser == null)
             {
                 TempData[TempDataHelper.FAILURE] = String.Format("Cannot cancel friend request to user ID {0}: No user exists", toId);
-                return Redirect(_repository.GetSessionLanguage()+"/Home/Index");
+                return Redirect(UrlHelper.Generate(_repository.GetSessionLanguage(), "Home", "Index"));
             }
 
             if (_repository.RemoveFriendRequest(currentUser.Id, toId))
