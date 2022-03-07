@@ -1,7 +1,8 @@
 ﻿@using CryptoAddressStorage.Models;
 @using CryptoAddressStorage.Services; 
 @using Microsoft.AspNetCore.Identity
- 
+@using CryptoAddressStorage.Helpers; 
+
 @model GlobalSearchViewModel;
 @inject UserManager<IdentityUser> UserManager
 @inject ISiteRepository Repository 
@@ -29,7 +30,7 @@
             @foreach (var user in Model.SearchUsers)
             {
                 <tr>
-                    <td><a href="/User/@user.UserName">@user.UserName</a></td>
+                    <td><a href="@UrlHelper.Generate(Repository.GetSessionLanguage(),"User", user.UserName)">@user.UserName</a></td>
                 </tr>
             }
         </tbody>

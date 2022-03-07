@@ -3,18 +3,19 @@
 }
 @using Microsoft.AspNetCore.Identity
 @using CryptoAddressStorage.Models.Entities
+@using CryptoAddressStorage.Services
+@using CryptoAddressStorage.Helpers
 @inject SignInManager<IdentityUser> SignInManager
+@inject ISiteRepository repo
 @model IEnumerable<CryptoAddress>
 
 <div class="text-center">
-    <h1 class="display-4">crypto address storage</h1>
+    <h1 class="display-4">C-Transfer - @repo.GetTranslation("Home_Index_MainHeader")</h1>
 </div>
 
 @if (SignInManager.IsSignedIn(User))
 {
-    <p class="alert-success">@Html.Raw(TempData["SuccessData"])</p>
-    <p class="alert-danger">@Html.Raw(TempData["FailureData"])</p>
-    <p class="alert-warning">@Html.Raw(TempData["WarningData"])</p>
+    <partial name="Alerts" />
     <div class="header">
         <h2>Your Addresses &nbsp;</h2>
         <a class="btn btn-success" asp-controller="Address" asp-action="New">New Address</a>
@@ -33,37 +34,37 @@
             </tr>
         </thead>
         <tbody>
-            @foreach(CryptoAddress addy in Model)
+            @foreach (CryptoAddress addy in Model)
             {
-            <tr>
-                <td>@addy.Title</td>
-                <td style="max-width:300px; word-wrap: break-word">@addy.PublicKey</td>
-                <td>@addy.Coin</td>
-                <td>@addy.Format</td>
-                @{
-                    string accessStyling = "";
-                    switch (addy.AccessLevel)
-                    {
-                        case "Private":
-                            accessStyling = "danger";
-                            break;
+                <tr>
+                    <td>@addy.Title</td>
+                    <td style="max-width:300px; word-wrap: break-word">@addy.PublicKey</td>
+                    <td>@addy.Coin</td>
+                    <td>@addy.Format</td>
+                    @{
+                        string accessStyling = "";
+                        switch (addy.AccessLevel)
+                        {
+                            case "Private":
+                                accessStyling = "danger";
+                                break;
 
-                        case "FriendsOnly":
-                            accessStyling = "warning";
-                            break;
+                            case "FriendsOnly":
+                                accessStyling = "warning";
+                                break;
 
-                        case "Public":
-                            accessStyling = "success";
-                            break;
+                            case "Public":
+                                accessStyling = "success";
+                                break;
+                        }
+
+                        <td class="alert-@accessStyling">@addy.AccessLevel</td>
                     }
-
-                    <td class="alert-@accessStyling">@addy.AccessLevel</td>
-                }
-                <td>@addy.Balance</td>
-                <td>
-                    <a class="btn btn-primary" asp-controller="Address" asp-action="Edit" asp-route-id="@addy.Id">Edit</a>
-                </td>
-            </tr>
+                    <td>@addy.Balance</td>
+                    <td>
+                        <a class="btn btn-primary" href="@UrlHelper.Generate(repo.GetSessionLanguage(), "Address", "Edit", addy.Id.ToString())">Edit</a>
+                    </td>
+                </tr>
             }
         </tbody>
     </table>

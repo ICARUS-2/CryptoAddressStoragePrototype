@@ -1,8 +1,9 @@
 ﻿@using Microsoft.AspNetCore.Identity
 @using CryptoAddressStorage.Services
+@using CryptoAddressStorage.Helpers
 @inject SignInManager<IdentityUser> SignInManager
 @inject UserManager<IdentityUser> UserManager
-@inject ISiteRepository Repository
+@inject ISiteRepository repo
 
 <ul class="navbar-nav">
     @if (SignInManager.IsSignedIn(User))
@@ -12,51 +13,50 @@
         @if (User.IsInRole("Admin"))
         {
             <li class="nav-item">
-                <a class="nav-link text-dark" asp-controller="UserManager" asp-action="Index" title="Manage">Manage Users</a>
+                <a class="nav-link text-dark" href="@UrlHelper.Generate(repo.GetSessionLanguage(), "UserManager", "Index")" title="Manage">@repo.GetTranslation("Layout_Nav_ManageUsers")</a>
             </li>
         }
 
         <li class="nav-item">
-            <a class="nav-link text-dark" asp-controller="Home" asp-action="GlobalSearch">Search</a>
+            <a class="nav-link text-dark" href="@UrlHelper.Generate(repo.GetSessionLanguage(), "Home", "GlobalSearch")">@repo.GetTranslation("Layout_Nav_Search")</a>
         </li>
 
         <li class="nav-item">
-            <a class="nav-link text-dark" asp-area="Identity" asp-page="/Account/Manage/Index" title="Manage">@User.Identity.Name</a>
+            <a class="nav-link text-dark" href="@UrlHelper.Generate(repo.GetSessionLanguage(), "Accounts", "Manage")" title="Manage">@User.Identity.Name</a>
         </li>
 
         <li class="nav-item">
             @{
                 //Appears as the number of friend requests next to the navbar tab
                 string notif = "";
-                var pendingFriendReqCount = Repository.GetUserReceivedFriendRequests(currentIdentityUser.Id).Count();
+                var pendingFriendReqCount = repo.GetUserReceivedFriendRequests(currentIdentityUser.Id).Count();
 
                 if (pendingFriendReqCount > 0)
                     notif += String.Format(" ({0})", pendingFriendReqCount);
 
-                <a class="nav-link text-dark" href="~/Friends/List">Friends<p class="text-danger d-inline">@notif</p></a>
+                <a class="nav-link text-dark" href="@UrlHelper.Generate(repo.GetSessionLanguage(), "Friends", "List")">@repo.GetTranslation("Layout_Nav_Friends")<p class="text-danger d-inline">@notif</p></a>
             }
         </li>
 
         <li class="nav-item">
             <form class="form-inline" asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })">
-                <button type="submit" class="nav-link btn btn-link text-dark">Logout</button>
+                <button type="submit" class="nav-link btn btn-link text-dark">@repo.GetTranslation("Layout_Nav_Logout")</button>
             </form>
         </li>
     }
     else
     {
         <li class="nav-item">
-            <a class="nav-link text-dark" asp-area="Identity" asp-page="/Account/Register">Register</a>
+            <a class="nav-link text-dark" href ="@UrlHelper.Generate(repo.GetSessionLanguage(), "Accounts", "Register")">@repo.GetTranslation("Layout_Nav_Register")</a>
         </li>
         <li class="nav-item">
-            <a class="nav-link text-dark" asp-area="Identity" asp-page="/Account/Login">Login</a>
+            <a class="nav-link text-dark" href="@UrlHelper.Generate(repo.GetSessionLanguage(), "Accounts", "Login")">@repo.GetTranslation("Layout_Nav_Login")</a>
         </li>
     }
 </ul>
 
 <style>
-    .nav-item
-    {
+    .nav-item {
         margin-left: 5px;
         margin-right: 5px;
     }

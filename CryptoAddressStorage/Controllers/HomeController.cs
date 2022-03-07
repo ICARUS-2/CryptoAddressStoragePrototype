@@ -1,10 +1,12 @@
-﻿using CryptoAddressStorage.Models;
+﻿using CryptoAddressStorage.Helpers;
+using CryptoAddressStorage.Models;
 using CryptoAddressStorage.Models.Entities;
 using CryptoAddressStorage.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using System;
@@ -20,6 +22,7 @@ namespace CryptoAddressStorage.Controllers
         private readonly UserManager<IdentityUser> _userManager;
         private readonly SignInManager<IdentityUser> _signInManager;
         private readonly ISiteRepository _repository;
+
         public HomeController(UserManager<IdentityUser> um ,SignInManager<IdentityUser> sm, ISiteRepository repo)
         {
             _userManager = um;

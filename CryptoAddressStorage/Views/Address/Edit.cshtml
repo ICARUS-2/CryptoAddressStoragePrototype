@@ -1,4 +1,7 @@
-﻿@model CryptoAddressStorage.Models.Entities.CryptoAddress
+﻿@using CryptoAddressStorage.Services
+@using CryptoAddressStorage.Helpers
+@model CryptoAddressStorage.Models.Entities.CryptoAddress
+@inject ISiteRepository repo
 
 <h1>Edit address</h1>
 
@@ -25,10 +28,10 @@
     <br />
     <br />
 
-    <button type="submit" class="btn btn-success submitBtn" asp-controller="Address" asp-action="Edit" asp-route-id="@Model.Id">Update</button>
-    <a asp-controller="Home" asp-action="Index" class="btn btn-warning">Cancel</a>
+    <button type="submit" class="btn btn-success submitBtn" formaction="@UrlHelper.Generate(repo.GetSessionLanguage(), "Address", "Edit", Model.Id.ToString())">Update</button>
+    <a href="@UrlHelper.Generate(repo.GetSessionLanguage(), "Home", "Index")" class="btn btn-warning">Cancel</a>
     <button type="button" class="btn btn-danger deleteButton">Delete Address</button>
-    <button type="submit" asp-controller="Address" asp-action="Delete" asp-route-id="@Model.Id" class="btn btn-danger confirmDeleteButton" style="display:none">Confirm delete [CANNOT BE UNDONE]</button>
+    <button type="submit" formaction="@UrlHelper.Generate(repo.GetSessionLanguage(), "Address", "Delete", Model.Id.ToString())" class="btn btn-danger confirmDeleteButton" style="display:none">Confirm delete [CANNOT BE UNDONE]</button>
 </form>
 
 <script>
@@ -78,10 +81,12 @@
 
         let query = encodeQueryData(data);
 
-        let formatFromBackend = await fetch("../format/" + query);
+        let url = "/@repo.GetSessionLanguage()/Address/Format/"+query;
+
+        let formatFromBackend = await fetch(url);
 
         let formatText = await formatFromBackend.text();
-
+        console.log()
         if (formatText.includes("Unknown")) {
             formatDataField.style.color = "red";
             formatDataField.innerText = "UNKNOWN FORMAT";

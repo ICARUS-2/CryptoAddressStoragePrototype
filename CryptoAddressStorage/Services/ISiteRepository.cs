@@ -26,5 +26,16 @@ namespace CryptoAddressStorage.Services
         public IEnumerable<Friendship> GetUserFriendsList(string userId);
         public IEnumerable<FriendRequest> GetUserSentFriendRequests(string userId);
         public IEnumerable<FriendRequest> GetUserReceivedFriendRequests(string userId);
+
+        //Globalization
+        public TranslationResource GetTranslationResource(string key);
+        public string GetTranslation(string key, string lang);
+        public string GetTranslation(string key);
+        public void ClearAllTranslations();
+        public void AddTranslationResource(TranslationResource resource);
+        public string GetSessionLanguage();
+        public void SetSessionLanguage(string lang);
+        public string GetRawRoute();
+        public void SetRawRoute(string route);
     }
 }

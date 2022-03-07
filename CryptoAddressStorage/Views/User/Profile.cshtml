@@ -1,15 +1,16 @@
 ﻿@using CryptoAddressStorage.Models;
 @using CryptoAddressStorage.Models.Entities;
+@using CryptoAddressStorage.Helpers; 
 @using CryptoAddressStorage.Services;
 @using Microsoft.AspNetCore.Identity;
 @using System.Web; 
-
+@using CryptoAddressStorage.Helpers 
 @inject UserManager<IdentityUser> UserManager;
 @inject ISiteRepository Repository;
 @model ProfileViewModel;
 
-<p class="alert-success">@TempData["SuccessData"]</p>
-<p class="alert-danger">@TempData["FailureData"]</p>
+<p class="alert-success">@TempData[TempDataHelper.SUCCESS]</p>
+<p class="alert-danger">@TempData[TempDataHelper.FAILURE]</p>
 
 <h1>@Model.IdentityUser.UserName's Profile</h1>
 
@@ -22,7 +23,7 @@
         //Current user is friends with profile user
         if (Repository.CheckFriendship(user.Id, Model.IdentityUser.Id))
         {
-            <form method="post" action="~/Friends/Remove">
+            <form method="post" action="@UrlHelper.Generate(Repository.GetSessionLanguage(), "Friends", "Remove")">
                 <input name="ToId" hidden value="@Model.IdentityUser.Id" />
                 <input name="Redirect" hidden value="@Context.Request.Path" />
                 <button class="btn btn-danger" type="submit">Remove Friend</button>
@@ -31,7 +32,7 @@
         //Current user sent profile user pending friend request
         else if (Repository.CheckPendingFriendRequest(user.Id, Model.IdentityUser.Id))
         {
-            <form method="post" action="~/Friends/Requests/Cancel">
+            <form method="post" action="@UrlHelper.Generate(Repository.GetSessionLanguage(), "Friends", "Requests", "Cancel")">
                 <input name="ToId" hidden value="@Model.IdentityUser.Id" />
                 <input name="Redirect" hidden value="@Context.Request.Path" />
                 <button class="btn btn-warning" type="submit">Cancel friend request</button>
@@ -43,12 +44,12 @@
             <p>@Model.IdentityUser.UserName friend requested you</p>
 
             <div style="display: flex">
-                <form method="post" action="~/Friends/Requests/Accept">
+                <form method="post" action="@UrlHelper.Generate(Repository.GetSessionLanguage(), "Friends", "Requests", "Accept")">
                     <input name="FromId" hidden value="@Model.IdentityUser.Id" />
                     <input name="Redirect" hidden value="@Context.Request.Path" />
                     <button type="submit" class="btn btn-success" style="margin-right: 5px">Accept</button>
                 </form>
-                <form method="post" action="~/Friends/Requests/DontAccept">
+                <form method="post" action="@UrlHelper.Generate(Repository.GetSessionLanguage(), "Friends", "Requests", "DontAccept")">
                     <input name="FromId" hidden value="@Model.IdentityUser.Id" />
                     <input name="Redirect" hidden value="@Context.Request.Path" />
                     <button type="submit" class="btn btn-danger">Don't accept</button>
@@ -57,7 +58,7 @@
         }
         else
         {
-            <form method="post" action="~/Friends/Requests/Send">
+            <form method="post" action="@UrlHelper.Generate(Repository.GetSessionLanguage(), "Friends", "Requests", "Send")">
                 <input name="ToId" hidden value="@Model.IdentityUser.Id" />
                 <input name="Redirect" hidden value="@Context.Request.Path" />
                 <button class="btn btn-success" style="color: white" type="submit">Send friend request</button>

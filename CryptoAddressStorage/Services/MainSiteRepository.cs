@@ -9,17 +9,18 @@ namespace CryptoAddressStorage.Services
 {
     public class MainSiteRepository : ISiteRepository
     {
-        public readonly CryptoContext _context;
-
-        public MainSiteRepository(CryptoContext ctx)
+        public readonly SiteContext _context;
+        private string _sessionLang;
+        private string _rawRoute;
+        public MainSiteRepository(SiteContext ctx)
         {
             _context = ctx;
         }
 
-        //Addresses
+        #region Addresses
         public IEnumerable<CryptoAddress> GetAllAddresses()
         {
-            return _context.Addresses;
+            return _context.Addresses.ToList();
         }
 
         public IEnumerable<CryptoAddress> GetAddressesByUserId(string userId)
@@ -43,8 +44,9 @@ namespace CryptoAddressStorage.Services
             _context.Addresses.Remove(address);
             _context.SaveChanges();
         }
+        #endregion
 
-        //Friends
+        #region Friends
         public bool CheckFriendship(string user1, string user2)
         {
             List<Friendship> friendships = _context.Friendships
@@ -127,27 +129,94 @@ namespace CryptoAddressStorage.Services
             return true;
         }
 
-        public void SaveChanges()
-        {
-            _context.SaveChanges();
-        }
-
         public IEnumerable<Friendship> GetUserFriendsList(string userId)
         {
             return _context.Friendships.Where(f =>
-            f.Friend1 == userId || f.Friend2 == userId);
+            f.Friend1 == userId || f.Friend2 == userId).ToList();
         }
 
         public IEnumerable<FriendRequest> GetUserSentFriendRequests(string userId)
         {
             return _context.FriendRequests.Where(fr =>
-            fr.From == userId);
+            fr.From == userId).ToList();
         }
 
         public IEnumerable<FriendRequest> GetUserReceivedFriendRequests(string userId)
         {
             return _context.FriendRequests.Where(fr =>
-            fr.To == userId);
+            fr.To == userId).ToList();
+        }
+
+        #endregion
+
+        #region Globalization
+        public TranslationResource GetTranslationResource(string key)
+        {
+            return _context.TranslationResources.Where(tr => tr.ResourceKey.ToLower() == key.ToLower()).FirstOrDefault();
+        }
+
+        public string GetTranslation(string key, string lang)
+        {
+            TranslationResource resource = GetTranslationResource(key);
+
+            if (resource is null)
+                return "ERROR: RESOURCE NOT FOUND";
+
+            switch (lang.ToLower())
+            {
+                case "en":
+                    return resource.Text_En;
+
+                case "fr":
+                    return resource.Text_Fr;
+            }
+
+            return "ERROR: INVALID LANGUAGE";
+        }
+
+        public string GetTranslation(string key)
+        {
+            return GetTranslation(key, GetSessionLanguage());
+        }
+
+        public void AddTranslationResource(TranslationResource resource)
+        {
+            _context.TranslationResources.Add(resource);
+        }
+
+        public void ClearAllTranslations()
+        {
+            foreach(TranslationResource res in _context.TranslationResources)
+            {
+                _context.TranslationResources.Remove(res);
+            }
+            SaveChanges();
+        }
+
+        public string GetSessionLanguage()
+        {
+            return _sessionLang;
+        }
+
+        public void SetSessionLanguage(string lang)
+        {
+            _sessionLang = lang;
+        }
+
+        public string GetRawRoute()
+        {
+            return _rawRoute;
+        }
+
+        public void SetRawRoute(string route)
+        {
+            _rawRoute = route;
+        }
+        #endregion
+
+        public void SaveChanges()
+        {
+            _context.SaveChanges();
         }
     }
 }

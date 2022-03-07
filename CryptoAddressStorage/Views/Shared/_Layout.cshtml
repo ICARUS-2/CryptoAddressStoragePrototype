@@ -1,17 +1,23 @@
-﻿<!DOCTYPE html>
+﻿@using CryptoAddressStorage.Services
+@using CryptoAddressStorage.Helpers
+@inject ISiteRepository repo
+
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - CryptoAddressStorage</title>
+    <title>@ViewData["Title"] - C-Transfer</title>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" />
 </head>
 <body>
+    <a href="@UrlHelper.Generate("En", repo.GetRawRoute())" class="btn btn-primary text-white">English</a>
+    <a href="@UrlHelper.Generate("Fr", repo.GetRawRoute())" class="btn btn-danger text-white">French</a>
     <header>
         <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
             <div class="container">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">CryptoAddressStorage</a>
+                <a href="@UrlHelper.Generate(repo.GetSessionLanguage(), "Home", "Index")" class="navbar-brand">C-Transfer</a>
                 <button class="navbar-toggler" type="button" data-toggle="collapse" data-target=".navbar-collapse" aria-controls="navbarSupportedContent"
                         aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
@@ -19,10 +25,10 @@
                 <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
                     <ul class="navbar-nav flex-grow-1">
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
+                            <a href="@UrlHelper.Generate(repo.GetSessionLanguage(), "Home", "Index")" class="nav-link text-dark">Home</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+                            <a href="@UrlHelper.Generate(repo.GetSessionLanguage(), "Home", "Privacy")" class="nav-link text-dark">Privacy</a>
                         </li>
                     </ul>
                     <partial name="_LoginPartial" />
@@ -38,7 +44,7 @@
 
     <footer class="border-top footer text-muted">
         <div class="container">
-            &copy; 2021 - CryptoAddressStorage - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+            &copy; @DateTime.Now.Year - C-Transfer - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
         </div>
     </footer>
     <script src="~/lib/jquery/dist/jquery.min.js"></script>

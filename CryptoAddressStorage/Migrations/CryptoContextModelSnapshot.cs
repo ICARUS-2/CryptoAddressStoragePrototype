@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace CryptoAddressStorage.Migrations
 {
-    [DbContext(typeof(CryptoContext))]
+    [DbContext(typeof(SiteContext))]
     partial class CryptoContextModelSnapshot : ModelSnapshot
     {
         protected override void BuildModel(ModelBuilder modelBuilder)
@@ -79,6 +79,27 @@ namespace CryptoAddressStorage.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Friendships");
+                });
+
+            modelBuilder.Entity("CryptoAddressStorage.Models.Entities.TranslationResource", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<string>("ResourceKey")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Text_En")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Text_Fr")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("TranslationResources");
                 });
 #pragma warning restore 612, 618
         }

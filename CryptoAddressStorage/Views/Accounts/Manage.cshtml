@@ -1,0 +1,46 @@
+﻿@model CryptoAddressStorage.Models.Auth.ManageAccountModel
+@using Microsoft.AspNetCore.Identity
+@using CryptoAddressStorage.Services
+@using CryptoAddressStorage.Helpers
+@inject SignInManager<IdentityUser> SignInManager
+@inject UserManager<IdentityUser> UserManager
+@inject ISiteRepository Repository
+@{
+    string lang = TempData[LanguageHelper.LANG_KEY].ToString();
+    string rawRoute = TempData[LanguageHelper.RAW_ROUTE_KEY].ToString();
+    var user = await UserManager.GetUserAsync(User);
+}
+
+<h1>@user.UserName - Manage Account</h1>
+
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form method="post" action="@UrlHelper.Generate(lang, "Accounts", "Manage")">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+                <label asp-for="Email" class="control-label"></label>
+                <input asp-for="Email" class="form-control" />
+                <span asp-validation-for="Email" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Username" class="control-label"></label>
+                <input asp-for="Username" class="form-control" />
+                <span asp-validation-for="Username" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label class="control-label">New Password (leave blank if not changing)</label>
+                <input asp-for="Password" class="form-control" />
+                <span asp-validation-for="Password" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label class="control-label">Confirm new password</label>
+                <input asp-for="ConfirmPassword" class="form-control" />
+                <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Update" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
